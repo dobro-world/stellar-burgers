@@ -16,23 +16,47 @@ const constructorSlice = createSlice({
   name: 'burgerConstructor',
   initialState,
   reducers: {
-    addIngredient: (state, action: PayloadAction<TIngredient>) => {
-      const ingredient = {
-        ...action.payload,
-        id: uuidv4()
-      };
+    addIngredient: {
+      reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
+        if (action.payload.type === 'bun') {
+          state.bun = action.payload;
+        } else {
+          state.ingredients.push(action.payload);
+        }
+      },
 
-      if (ingredient.type === 'bun') {
-        state.bun = ingredient;
-      } else {
-        state.ingredients.push(ingredient);
-      }
+      prepare: (ingredient: TIngredient) => ({
+        payload: {
+          ...ingredient,
+          id: uuidv4()
+        }
+      })
     },
 
     removeIngredient: (state, action: PayloadAction<string>) => {
       state.ingredients = state.ingredients.filter(
         (ingredient) => ingredient.id !== action.payload
       );
+    },
+
+    moveIngredientUp: (state, action: PayloadAction<number>) => {
+      const index = action.payload;
+
+      if (index > 0) {
+        const currentIngredient = state.ingredients[index];
+        state.ingredients[index] = state.ingredients[index - 1];
+        state.ingredients[index - 1] = currentIngredient;
+      }
+    },
+
+    moveIngredientDown: (state, action: PayloadAction<number>) => {
+      const index = action.payload;
+
+      if (index < state.ingredients.length - 1) {
+        const currentIngredient = state.ingredients[index];
+        state.ingredients[index] = state.ingredients[index + 1];
+        state.ingredients[index + 1] = currentIngredient;
+      }
     },
 
     clearConstructor: (state) => {
@@ -42,7 +66,12 @@ const constructorSlice = createSlice({
   }
 });
 
-export const { addIngredient, removeIngredient, clearConstructor } =
-  constructorSlice.actions;
+export const {
+  addIngredient,
+  removeIngredient,
+  clearConstructor,
+  moveIngredientUp,
+  moveIngredientDown
+} = constructorSlice.actions;
 
 export default constructorSlice.reducer;

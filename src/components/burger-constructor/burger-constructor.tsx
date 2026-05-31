@@ -9,6 +9,7 @@ import {
   clearOrderModalData,
   createOrder
 } from '../../services/slices/orderSlice';
+import { getCookie } from '../../utils/cookie';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
@@ -21,7 +22,9 @@ export const BurgerConstructor: FC = () => {
   const onOrderClick = () => {
     if (!constructorItems.bun || orderRequest) return;
 
-    if (!user) {
+    const accessToken = getCookie('accessToken');
+
+    if (!user || !accessToken) {
       navigate('/login');
       return;
     }
