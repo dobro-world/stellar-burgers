@@ -11,32 +11,41 @@ test.describe('constructor page', () => {
   });
 
   test('should add ingredients to constructor', async ({ page }) => {
+    const constructor = page.getByTestId('burger-constructor');
+
     await page.getByText('Добавить').nth(0).click();
 
-    await expect(page.getByText('Краторная булка N-200i (верх)')).toBeVisible();
-    await expect(page.getByText('Краторная булка N-200i (низ)')).toBeVisible();
+    await expect(
+      constructor.getByText('Краторная булка N-200i (верх)')
+    ).toBeVisible();
+
+    await expect(
+      constructor.getByText('Краторная булка N-200i (низ)')
+    ).toBeVisible();
 
     await page.getByText('Добавить').nth(1).click();
 
     await expect(
-      page.locator('.constructor-element__text').filter({
-        hasText: 'Биокотлета из марсианской Магнолии'
-      })
+      constructor.getByText('Биокотлета из марсианской Магнолии')
     ).toBeVisible();
   });
 
   test('should open and close ingredient modal', async ({ page }) => {
     await page.getByRole('link', { name: /Краторная булка N-200i/ }).click();
 
-    await expect(page.getByText('Детали ингредиента')).toBeVisible();
+    const modal = page.getByTestId('modal');
+
+    await expect(modal).toBeVisible();
+
+    await expect(modal.getByText('Детали ингредиента')).toBeVisible();
 
     await expect(
-      page.getByRole('heading', { name: 'Краторная булка N-200i' })
+      modal.getByRole('heading', { name: 'Краторная булка N-200i' })
     ).toBeVisible();
 
-    await page.keyboard.press('Escape');
+    await page.getByTestId('modal-close').click();
 
-    await expect(page.getByText('Детали ингредиента')).not.toBeVisible();
+    await expect(modal).not.toBeVisible();
   });
 
   test('should create order and clear constructor', async ({ page, context }) => {
@@ -55,20 +64,25 @@ test.describe('constructor page', () => {
 
     await page.reload();
 
+    const constructor = page.getByTestId('burger-constructor');
+
     await page.getByText('Добавить').nth(0).click();
     await page.getByText('Добавить').nth(1).click();
 
     await page.getByRole('button', { name: 'Оформить заказ' }).click();
 
-    await expect(page.getByText('12345')).toBeVisible();
-    await expect(page.getByText('идентификатор заказа')).toBeVisible();
+    const modal = page.getByTestId('modal');
 
-    await page.keyboard.press('Escape');
+    await expect(modal).toBeVisible();
+    await expect(modal.getByText('12345')).toBeVisible();
+    await expect(modal.getByText('идентификатор заказа')).toBeVisible();
 
-    await expect(page.getByText('12345')).not.toBeVisible();
+    await page.getByTestId('modal-close').click();
 
-    await expect(page.getByText('Выберите булки').first()).toBeVisible();
-    await expect(page.getByText('Выберите начинку')).toBeVisible();
+    await expect(modal).not.toBeVisible();
+
+    await expect(constructor.getByText('Выберите булки').first()).toBeVisible();
+    await expect(constructor.getByText('Выберите начинку')).toBeVisible();
 
     await context.clearCookies();
     await page.evaluate(() => localStorage.clear());

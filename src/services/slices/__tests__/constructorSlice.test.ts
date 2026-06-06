@@ -65,10 +65,7 @@ describe('burgerConstructor reducer', () => {
     const stateWithIngredient = reducer(undefined, addIngredient(main));
     const ingredientId = stateWithIngredient.ingredients[0].id;
 
-    const state = reducer(
-      stateWithIngredient,
-      removeIngredient(ingredientId)
-    );
+    const state = reducer(stateWithIngredient, removeIngredient(ingredientId));
 
     expect(state.ingredients).toHaveLength(0);
   });
